@@ -4,12 +4,15 @@ import android.Manifest
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.Settings
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -20,7 +23,10 @@ import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -30,6 +36,8 @@ class AddHappyPlace : AppCompatActivity(), View.OnClickListener {
     companion object {
         private const val GALLERY_ACTION_ID = 1;
         private const val CAMERA_ACTION_ID = 2;
+        // Folder on the phone where the image is stored
+        private const val IMAGE_DIRECTORY = "HappyPlacesImages"
     }
 
 
@@ -156,8 +164,10 @@ class AddHappyPlace : AppCompatActivity(), View.OnClickListener {
                     val contentURI = data.data
                     // Get image from the MediaStore
                     try {
-                        val selectedImageBitMap =
-                            MediaStore.Images.Media.getBitmap(this.contentResolver, contentURI)
+                        val selectedImageBitMap = MediaStore.Images.Media.getBitmap(this.contentResolver, contentURI)
+                        // Image stored and location returned
+                        val fileLocation = saveImageToInternalStorage(selectedImageBitMap)
+                        Log.e("File location ", "Path : $fileLocation")
                         binding?.ivPlaceImage?.setImageBitmap(selectedImageBitMap)
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -170,6 +180,9 @@ class AddHappyPlace : AppCompatActivity(), View.OnClickListener {
                 }
             } else if (requestCode == CAMERA_ACTION_ID) {
                 val cameraBitMap: Bitmap? = data?.extras?.get("data") as Bitmap?
+                // Image stored and location returned
+                val fileLocation = saveImageToInternalStorage(cameraBitMap!!)
+                Log.e("File location " , "Path : $fileLocation " )
                 binding?.ivPlaceImage?.setImageBitmap(cameraBitMap)
             }
         }
@@ -202,5 +215,26 @@ class AddHappyPlace : AppCompatActivity(), View.OnClickListener {
         val myFormat = "dd.MM.yyyy"
         val sdf = SimpleDateFormat(myFormat, Locale.getDefault())
         binding?.etDate?.setText(sdf.format(calendar.time).toString())
+    }
+
+    // Return the location of where the image is stored
+    private fun saveImageToInternalStorage(bitMap: Bitmap) : Uri {
+        // We need it to get the directory of our application
+        val wrapper = ContextWrapper(applicationContext)
+        // The mode we set makes this directory accessible only from this application
+        var file = wrapper.getDir(IMAGE_DIRECTORY, Context.MODE_PRIVATE)
+        // Create the file where the image is stored. The UUID gives the file name a random UUID so that each image
+        // will have a unique file naem
+        file = File(file,"${UUID.randomUUID()}.jpeg")
+        try{
+            val stream : OutputStream = FileOutputStream(file)
+            bitMap.compress(Bitmap.CompressFormat.JPEG,100,stream)
+            stream.flush()
+            stream.close()
+        }catch(e : IOException) {
+            e.printStackTrace()
+        }
+
+        return Uri.parse(file.absolutePath)
     }
 }
