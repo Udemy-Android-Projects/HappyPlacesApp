@@ -16,4 +16,11 @@
     <dimen name="image_border_stroke_size">0.5dp</dimen>
     <dimen name="add_place_image_shape_radius">3dp</dimen>
     <dimen name="button_radius">10dp</dimen>
+
+    <dimen name="detail_screen_image_height_size">250dp</dimen>
+    <dimen name="detail_screen_description_margin">8dp</dimen>
+    <dimen name="detail_screen_description_text_size">16sp</dimen>
+    <dimen name="detail_screen_location_marginStartEnd">8dp</dimen>
+    <dimen name="detail_screen_location_marginTop">16dp</dimen>
+    <dimen name="detail_screen_location_text_size">18sp</dimen>
 </resources>

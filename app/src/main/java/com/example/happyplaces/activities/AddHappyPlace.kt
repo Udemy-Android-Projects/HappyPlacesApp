@@ -1,4 +1,4 @@
-package com.example.happyplaces
+package com.example.happyplaces.activities
 
 import android.Manifest
 import android.app.Activity
@@ -17,7 +17,10 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.example.happyplaces.R
+import com.example.happyplaces.database.DatabaseHandler
 import com.example.happyplaces.databinding.ActivityAddHappyPlaceBinding
+import com.example.happyplaces.models.HappyPlaceModel
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -40,11 +43,15 @@ class AddHappyPlace : AppCompatActivity(), View.OnClickListener {
         private const val IMAGE_DIRECTORY = "HappyPlacesImages"
     }
 
-
     private var binding: ActivityAddHappyPlaceBinding? = null
 
     val calendar = Calendar.getInstance()
     lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
+    // We are getting the reference of the image we will store as a global variable
+    private var saveImageToInternalStorage: Uri? = null
+    // We will also store the longitude and latitude using global variables
+    private var mLatitude: Double = 0.0
+    private var mLongitude: Double = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,10 +70,13 @@ class AddHappyPlace : AppCompatActivity(), View.OnClickListener {
             calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
             updateDateInView()
         }
+        // We want to give the user the date automatically by calling this method outside the dateListener
+        updateDateInView()
 
         //Make sure the edit text uses the onClickListener
         binding?.etDate?.setOnClickListener(this)
         binding?.tvAddImage?.setOnClickListener(this)
+        binding?.btnSave?.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
@@ -100,6 +110,59 @@ class AddHappyPlace : AppCompatActivity(), View.OnClickListener {
                 }
                 // Remember to be careful with code placements if there are a lot of brackets
                 pictureDialog.show()
+            }
+            R.id.btn_save -> {
+                // We have to use a when expression which is a version of a switch statement
+                when {
+                    // We have to check if there are values that have been entered since we don't want to store empty values
+                    binding?.etTitle?.text.isNullOrEmpty() -> {
+                        Toast.makeText(this, "Please enter title", Toast.LENGTH_SHORT).show()
+                    }
+                    binding?.etDescription?.text.isNullOrEmpty() -> {
+                        Toast.makeText(this, "Please enter description", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    binding?.etLocation?.text.isNullOrEmpty() -> {
+                        Toast.makeText(this, "Please select location", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    // We don't check if the date is empty since the method that creates the date is in the onCreate method
+                    // and hence its created once onCreate is called
+
+                    // If the reference to the image is null we inform the user to select an image
+                    saveImageToInternalStorage == null -> {
+                        Toast.makeText(this, "Please add image", Toast.LENGTH_SHORT).show()
+                    } else -> { // If everything is okay store the data collected
+                        // Create a happyPlace object using the information the user has keyed in
+                    val happyPlaceModel = HappyPlaceModel(
+                        0,// ID is zero since it will be auto incremented
+                        binding?.etTitle?.text.toString(),
+                        saveImageToInternalStorage.toString(),
+                        binding?.etDescription?.text.toString(),
+                        binding?.etDate?.text.toString(),
+                        binding?.etLocation?.text.toString(),
+                        mLatitude,
+                        mLongitude
+                    )
+                    // We now store the data
+                    // Here we initialize the database handler class.
+                    val dbHandler = DatabaseHandler(this)
+                    // Remember the addHappyPlace function returns a long that indicates the result of the operation
+                    val addHappyPlace = dbHandler.addHappyPlace(happyPlaceModel)
+                    if (addHappyPlace > 0) {
+                        // Confirms that data has been successfully added to the database
+                        // We have to use this method since data entry and data reading occur in different classes
+                        setResult(Activity.RESULT_OK)
+                        Toast.makeText(
+                            this,
+                            "The happy place details are inserted successfully.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        // Once we finish this activity we will be sent back to the main activity
+                        finish()
+                    }
+                    }
+                }
             }
         }
     }
@@ -166,8 +229,8 @@ class AddHappyPlace : AppCompatActivity(), View.OnClickListener {
                     try {
                         val selectedImageBitMap = MediaStore.Images.Media.getBitmap(this.contentResolver, contentURI)
                         // Image stored and location returned
-                        val fileLocation = saveImageToInternalStorage(selectedImageBitMap)
-                        Log.e("File location ", "Path : $fileLocation")
+                        // The variable context is global
+                        saveImageToInternalStorage = saveImageToInternalStorage(selectedImageBitMap)
                         binding?.ivPlaceImage?.setImageBitmap(selectedImageBitMap)
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -181,8 +244,8 @@ class AddHappyPlace : AppCompatActivity(), View.OnClickListener {
             } else if (requestCode == CAMERA_ACTION_ID) {
                 val cameraBitMap: Bitmap? = data?.extras?.get("data") as Bitmap?
                 // Image stored and location returned
-                val fileLocation = saveImageToInternalStorage(cameraBitMap!!)
-                Log.e("File location " , "Path : $fileLocation " )
+                // the variable context is now global
+                saveImageToInternalStorage = saveImageToInternalStorage(cameraBitMap!!)
                 binding?.ivPlaceImage?.setImageBitmap(cameraBitMap)
             }
         }
