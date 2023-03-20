@@ -93,13 +93,17 @@
                     android:textColorHint="@color/secondary_text_color"
                     android:textSize="@dimen/edit_text_text_size" />
             </com.google.android.material.textfield.TextInputLayout>
-
+            <!--
+            android:focusable="false"
+            Makes this text input field clickable
+            -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_location"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/add_screen_til_marginTop"
+                android:focusable="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/til_date">
@@ -115,6 +119,24 @@
                     android:textSize="@dimen/edit_text_text_size" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!--TODO Adding the select current location button and setting permissions (Step 1: Add a text view for selecting a current location and add it below the location edit text and above the image change the param accordingly.)-->
+            <!--START-->
+            <TextView
+                android:id="@+id/tv_select_current_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/add_place_select_current_location_marginTop"
+                android:background="@drawable/shape_image_view_border"
+                android:gravity="center"
+                android:padding="@dimen/add_place_select_current_location_padding"
+                android:text="@string/add_place_select_current_location_text"
+                android:textColor="@color/colorAccent"
+                android:textSize="@dimen/add_place_select_current_location_textsize"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/til_location" />
+
+
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/iv_place_image"
                 android:layout_width="@dimen/add_screen_place_image_size"
@@ -127,7 +149,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/til_location" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_select_current_location" />
 
             <TextView
                 android:id="@+id/tv_add_image"

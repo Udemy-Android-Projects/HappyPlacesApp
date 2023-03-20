@@ -6,6 +6,11 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!--TODO Adding the select current location button and setting permissions  (Step 4: Add Location permission)-->
+    <!--START-->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!--END-->
 
     <application
         android:allowBackup="true"
@@ -17,12 +22,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Happyplaces"
         tools:targetApi="31">
+        <!--
+TODO : Add Map Intent (Step 1: Ensure that the created activity is visible in the manifest)
+    By this point we assume that the activity has been created
+-->
+        <!-- START -->
+        <activity
+            android:name=".activities.MapActivity"
+            android:label="HAPPY PLACE MAP"
+            android:theme="@style/CustomNoActionBarTheme"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <!-- END -->
         <activity
             android:name=".activities.HappyPlaceDetailActivity"
             android:exported="false"
             android:label="HAPPY PLACE DETAILS"
             android:screenOrientation="portrait"
-            android:theme="@style/CustomNoActionBarTheme"/>
+            android:theme="@style/CustomNoActionBarTheme" />
         <activity
             android:name=".activities.AddHappyPlace"
             android:exported="true"
@@ -39,6 +56,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!--
+TODO : Using The Google places API (Step 1: Add a meta tag for Google GEO API key.)
+            By this point we assume that the maps api has been enabled in the google platform
+        -->
+        <!-- START -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_api_key" />
     </application>
 
 </manifest>

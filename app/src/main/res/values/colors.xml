@@ -14,6 +14,8 @@
     <color name="colorPrimary">#4b86b4 </color>
     <color name="colorPrimaryDark">#2a4d69 </color>
     <color name="colorAccent">#adcbe3 </color>
+    <color name="place_autocomplete_search_text">@android:color/primary_text_dark</color>
+    <color name="place_autocomplete_search_hint">@android:color/secondary_text_dark</color>
 
     <color name="circular_image_border_color">#757575</color>
     <color name="item_happy_place_description_text_color">#606060</color>

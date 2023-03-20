@@ -75,6 +75,30 @@ class DatabaseHandler(context: Context) :
         return db.insert(TABLE_HAPPY_PLACE, null, contentValues)
     }
 
+    // TODO Fixing Update Bug (Step 1: Creating a function to edit/update the existing happy place detail.)
+    // Int is returned since the update method returns an int while the insert method returns a Long
+    fun updateHappyPlace(happyPlace: HappyPlaceModel): Int {
+        // Needed since we want to write to the database
+        val db = this.writableDatabase
+
+        val contentValues = ContentValues()
+        // Put data into content values. We get the data from the object we passed
+        contentValues.put(KEY_TITLE, happyPlace.title) // HappyPlaceModelClass TITLE
+        contentValues.put(KEY_IMAGE, happyPlace.image) // HappyPlaceModelClass IMAGE
+        contentValues.put(
+            KEY_DESCRIPTION,
+            happyPlace.description
+        ) // HappyPlaceModelClass DESCRIPTION
+        contentValues.put(KEY_DATE, happyPlace.date) // HappyPlaceModelClass DATE
+        contentValues.put(KEY_LOCATION, happyPlace.location) // HappyPlaceModelClass LOCATION
+        contentValues.put(KEY_LATITUDE, happyPlace.latitude) // HappyPlaceModelClass LATITUDE
+        contentValues.put(KEY_LONGITUDE, happyPlace.longitude) // HappyPlaceModelClass LONGITUDE
+
+        // db.close() // Closing database connection will prevent the database inspector from showing hte database contents
+        // Update an entry
+        return db.update(TABLE_HAPPY_PLACE, contentValues, KEY_ID + "=" + happyPlace.id, null)
+    }
+
     fun getHappyPlacesList() : ArrayList<HappyPlaceModel> {
         val happyPlaceList = java.util.ArrayList<HappyPlaceModel>()
         val selectQuery = "SELECT * from $TABLE_HAPPY_PLACE"
@@ -110,5 +134,17 @@ class DatabaseHandler(context: Context) :
         }
         return happyPlaceList
     }
-
+    // TODO (Step 4: Creating a function to delete the existing happy place detail.)
+    // START
+    /**
+     * Function to delete happy place details.
+     */
+    fun deleteHappyPlace(happyPlace: HappyPlaceModel): Int {
+        val db = this.writableDatabase
+        // Deleting Row
+        val success = db.delete(TABLE_HAPPY_PLACE, KEY_ID + "=" + happyPlace.id, null)
+        //2nd argument is String containing nullColumnHack
+        return success
+    }
+    // END
 }
